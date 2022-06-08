@@ -15,6 +15,7 @@ namespace _3D_Vector_solver
         public MainForm()
         {
             InitializeComponent();
+
         }
 
         double FindUnknown(double coefficient, double value)
