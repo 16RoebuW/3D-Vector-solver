@@ -32,7 +32,7 @@
             this.tbxLn1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.tbxLn2 = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.tbxPoint = new System.Windows.Forms.TextBox();
             this.btnSolve = new System.Windows.Forms.Button();
@@ -44,7 +44,6 @@
             this.cbxOptions.Items.AddRange(new object[] {
             "Intersection between a point and a line",
             "Intersection between two lines",
-            "Are two lines parallel?",
             "Are two lines skew?"});
             this.cbxOptions.Location = new System.Drawing.Point(26, 95);
             this.cbxOptions.Name = "cbxOptions";
@@ -77,13 +76,13 @@
             this.label2.TabIndex = 4;
             this.label2.Text = "Enter another line equation as 6 comma separated values";
             // 
-            // textBox1
+            // tbxLn2
             // 
-            this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.textBox1.Location = new System.Drawing.Point(461, 136);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(196, 26);
-            this.textBox1.TabIndex = 3;
+            this.tbxLn2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.tbxLn2.Location = new System.Drawing.Point(461, 136);
+            this.tbxLn2.Name = "tbxLn2";
+            this.tbxLn2.Size = new System.Drawing.Size(196, 26);
+            this.tbxLn2.TabIndex = 3;
             // 
             // label3
             // 
@@ -121,7 +120,7 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.tbxPoint);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.tbxLn2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.tbxLn1);
             this.Controls.Add(this.cbxOptions);
@@ -138,7 +137,7 @@
         private System.Windows.Forms.TextBox tbxLn1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox tbxLn2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox tbxPoint;
         private System.Windows.Forms.Button btnSolve;
