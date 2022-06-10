@@ -115,20 +115,17 @@ namespace _3D_Vector_solver
             return output;
         }
 
+        double DotProduct(double[] vctA, double[] vctB)
+        {
+            return (vctA[0] * vctB[0]) + (vctA[1] * vctB[1]) + (vctA[2] * vctB[2]);
+        }
 
+        double Magnitude(double[] vector)
+        {
+            return Math.Sqrt((vector[0] * vector[0]) + (vector[1] * vector[1]) + (vector[2] * vector[2]));
+        }
 
-
-
-
-
-
-
-
-
-
-
-        // These functions below suffer from an edge case where the first two equations are consistent but the 3rd is not, so a new approach is required
-        (bool valid, double pos) OLDPointIntersectsLine(double[] line, double[] point)
+        (bool valid, double pos) PointIntersectsLine(double[] line, double[] point)
         {
             double coefficient1 = line[3];
             double value1 = point[0] - line[0];
@@ -137,8 +134,16 @@ namespace _3D_Vector_solver
             double coefficient2 = line[4];
             double value2 = point[1] - line[1];
             // Check λ for y
+            
+            double coefficient3 = line[5];
+            double value3 = point[2] - line[2];
+            // Check λ for z
 
-            if (FindUnknown(coefficient1, value1) == FindUnknown(coefficient2, value2))
+            double lambda1 = FindUnknown(coefficient1, value1);
+            double lambda2 = FindUnknown(coefficient2, value2);
+            double lambda3 = FindUnknown(coefficient3, value3);
+
+            if (lambda1 == lambda2 && lambda2 == lambda3)
             {
                 return (true, FindUnknown(coefficient1, value1));
             }
@@ -148,7 +153,7 @@ namespace _3D_Vector_solver
             }
         }
 
-        (bool valid, double[] pos) OLDLineIntersection(double[] l1, double[] l2)
+        (bool valid, double[] pos) LineIntersection(double[] l1, double[] l2)
         {
             double[] eqn1 = new double[3];
             eqn1[0] = l1[3];
@@ -160,11 +165,16 @@ namespace _3D_Vector_solver
             eqn2[1] = -l2[4];
             eqn2[2] = -l1[1] + l2[1];
 
-            // Could add a 3rd eqn here to check, not sure if necessary or not tho
+            double[] eqn3 = new double[3];
+            eqn3[0] = l1[5];
+            eqn3[1] = -l2[5];
+            eqn3[2] = -l1[2] + l2[2];
 
             var (valid, x, y) = Find2Unknowns(eqn1, eqn2);
+            var (valid2, y2, z) = Find2Unknowns(eqn2, eqn3);
+            var (valid3, x2, z2) = Find2Unknowns(eqn1, eqn3);
 
-            if (valid)
+            if (valid && valid2 && valid3)
             {
                 double[] point = new double[3];
                 point[0] = l1[0] + (x * l1[3]);
@@ -180,7 +190,7 @@ namespace _3D_Vector_solver
 
         }
 
-        (bool valid, double x, double y) OLDFind2Unknowns(double[] eqn1, double[] eqn2)
+        (bool valid, double x, double y) Find2Unknowns(double[] eqn1, double[] eqn2)
         {
             // Construct a 2x2 matrix and invert it
             double[] inverse = new double[4];
@@ -190,7 +200,7 @@ namespace _3D_Vector_solver
             inverse[3] = eqn2[1];
 
             // Determinant
-            double det = inverse[0] * inverse[3] - inverse[2] * inverse[3];
+            double det = inverse[0] * inverse[3] - inverse[1] * inverse[2];
 
             if (det == 0)
             {
@@ -215,6 +225,27 @@ namespace _3D_Vector_solver
             double y = inverse[2] * eqn1[2] + inverse[3] * eqn2[2];
 
             return (true, x, y);
+        }
+
+        double ShortestDistance(double[] l1, double[] l2)
+        {
+            // 0 col is λ, 1 col is µ, 2 col is constant
+            // Rows are xyz
+            double[,] perpDirection = new double[3,3];
+
+            perpDirection[0, 0] = l1[3];
+            perpDirection[1, 0] = l1[4];
+            perpDirection[2, 0] = l1[5];
+
+            perpDirection[0, 1] = l2[3];
+            perpDirection[1, 1] = l2[4];
+            perpDirection[2, 1] = l2[5];
+
+            perpDirection[0, 2] = l2[0] - l1[0];
+            perpDirection[1, 2] = l2[1] - l1[1];
+            perpDirection[2, 2] = l2[2] - l1[2];
+
+            // Dot product of this = 0 with both lines
         }
     }
 

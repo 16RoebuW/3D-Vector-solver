@@ -44,7 +44,8 @@
             this.cbxOptions.Items.AddRange(new object[] {
             "Intersection between a point and a line",
             "Intersection between two lines",
-            "Are two lines skew?"});
+            "Are two lines skew?",
+            "Shortest distance between two lines"});
             this.cbxOptions.Location = new System.Drawing.Point(26, 95);
             this.cbxOptions.Name = "cbxOptions";
             this.cbxOptions.Size = new System.Drawing.Size(368, 21);
