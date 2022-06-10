@@ -83,7 +83,17 @@ namespace _3D_Vector_solver
                     }
                 case "Shortest distance between two lines":
                     {
-                        MessageBox.Show(ShortestDistance(ParseLine(tbxLn1.Text), ParseLine(tbxLn2.Text)).ToString());
+                        MessageBox.Show(ShortestDistanceLines(ParseLine(tbxLn1.Text), ParseLine(tbxLn2.Text)).ToString());
+                        break;
+                    }
+                case "Shortest distance between a point and a line":
+                    {
+                        MessageBox.Show(ShortestDistancePointLine(ParseLine(tbxLn1.Text), ParsePoint(tbxPoint.Text)).ToString());
+                        break;
+                    }
+                case "Shortest distance between a point and a plane":
+                    {
+                        MessageBox.Show(ShortestDistancePointPlane(ParsePlane(tbxPlane.Text), ParsePoint(tbxPoint.Text)).ToString());
                         break;
                     }
             }
@@ -115,6 +125,19 @@ namespace _3D_Vector_solver
             for (int i = 0; i < 3; i++)
             {
                 output[i] = Double.Parse(splitPoint[i]);
+            }
+
+            return output;
+        }
+
+        double[] ParsePlane(string plane)
+        {
+            string[] splitPlane = plane.Split(',');
+            double[] output = new double[4];
+
+            for (int i = 0; i < 4; i++)
+            {
+                output[i] = Double.Parse(splitPlane[i]);
             }
 
             return output;
@@ -232,48 +255,126 @@ namespace _3D_Vector_solver
             return (true, x, y);
         }
 
-        double ShortestDistance(double[] l1, double[] l2)
+        double ShortestDistanceLines(double[] l1, double[] l2)
         {
-            // 0 col is λ, 1 col is µ, 2 col is constant
-            // Rows are xyz
-            double[,] perpDirection = new double[3,3];
+            bool parallel = true;
 
-            perpDirection[0, 0] = -l1[3];
-            perpDirection[1, 0] = -l1[4];
-            perpDirection[2, 0] = -l1[5];
+            for (int i = 3; i < 6; i++)
+            {
+                if (l1[i] != l2[i])
+                {
+                    parallel = false;
+                    i = 6; // End the loop
+                }
+            }
 
-            perpDirection[0, 1] = l2[3];
-            perpDirection[1, 1] = l2[4];
-            perpDirection[2, 1] = l2[5];
+            if (parallel)
+            {
+                // Suprisingly, this is not an optimisation step. The problem cannot be solved when dealing with parallel lines unless this method is adopted
 
-            perpDirection[0, 2] = l2[0] - l1[0];
-            perpDirection[1, 2] = l2[1] - l1[1];
-            perpDirection[2, 2] = l2[2] - l1[2];
+                double[] perpOffset = new double[3];
+                for (int i = 0; i < 3; i++)
+                    perpOffset[i] = l2[i] - l1[i];
 
-            // Dot product of this = 0 with both lines
+                double coefficient = 0;
+                for (int i = 3; i < 6; i++)
+                    coefficient += l1[i] * l1[i];
 
-            double[] eqn1 = new double[3];
-            double[] eqn2 = new double[3];
-            double[] eqn3 = new double[3];
+                double value = 0;
+                for (int i = 0; i < 3; i++)
+                    value -= perpOffset[i] * l1[i + 3];
+
+                double t = FindUnknown(coefficient, value);
+
+                double[] distanceVect = new double[3];
+                for (int i = 0; i < 3; i++)
+                    distanceVect[i] = perpOffset[i] + (t * l1[i + 3]);
+
+
+                return Magnitude(distanceVect);
+            }
+            else
+            {
+                // 0 col is λ, 1 col is µ, 2 col is constant
+                // Rows are xyz
+                double[,] perpDirection = new double[3, 3];
+
+                perpDirection[0, 0] = -l1[3];
+                perpDirection[1, 0] = -l1[4];
+                perpDirection[2, 0] = -l1[5];
+
+                perpDirection[0, 1] = l2[3];
+                perpDirection[1, 1] = l2[4];
+                perpDirection[2, 1] = l2[5];
+
+                perpDirection[0, 2] = l2[0] - l1[0];
+                perpDirection[1, 2] = l2[1] - l1[1];
+                perpDirection[2, 2] = l2[2] - l1[2];
+
+                // Dot product of this = 0 with both lines
+
+                double[] eqn1 = new double[3];
+                double[] eqn2 = new double[3];
+                double[] eqn3 = new double[3];
+
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                        eqn1[j] += perpDirection[i, j] * l1[i + 3];
+                eqn1[2] *= -1;
+
+                for (int i = 0; i < 3; i++)
+                    for (int j = 0; j < 3; j++)
+                        eqn2[j] += perpDirection[i, j] * l2[i + 3];
+                eqn2[2] *= -1;
+
+                var (valid, x, y) = Find2Unknowns(eqn1, eqn2);
+
+                double[] distanceVect = new double[3];
+
+                for (int i = 0; i < 3; i++)
+                    distanceVect[i] = (x * perpDirection[i, 0]) + (y * perpDirection[i, 1]) + perpDirection[i, 2];
+
+                return Magnitude(distanceVect);
+            }
+        }
+
+        double ShortestDistancePointLine(double[] line, double[] point)
+        {
+            double[] offset = new double[3];
+            double value = 0;
+            double coefficient = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                offset[i] = line[i] - point[i];
+                value -= offset[i] * line[i + 3];
+                coefficient = line[i + 3] * line[i + 3];
+            }
+
+            double unknown = FindUnknown(coefficient, value);
+
+            double[] distanceVector = new double[3];
 
             for (int i = 0; i < 3; i++)
-                for (int j = 0; j < 3; j++)
-                    eqn1[j] += perpDirection[i, j] * l1[i + 3];
-            eqn1[2] *= -1;
+                distanceVector[i] = offset[i] + (line[i + 3] * unknown);
 
+            return Magnitude(distanceVector);
+        }
+
+        double ShortestDistancePointPlane(double[] plane, double[] point)
+        {
+            // I'll be honest, I only know the formula for this, not the logic, so code may be hard to read
+            double top = 0;
+            double[] normal = new double[3];
             for (int i = 0; i < 3; i++)
-                for (int j = 0; j < 3; j++)
-                    eqn2[j] += perpDirection[i, j] * l2[i + 3];
-            eqn2[2] *= -1;
+            {
+                top += plane[i] * point[i];
+                normal[i] = plane[i];
+            }
 
-            var (valid, x, y) = Find2Unknowns(eqn1, eqn2);
-
-            double[] distanceVect = new double[3];
-
-            for (int i = 0; i < 3; i++)
-                distanceVect[i] = (x * perpDirection[i, 0]) + (y * perpDirection[i, 1]) + perpDirection[i,2];
-
-            return Magnitude(distanceVect);
+            top -= plane[3];
+            top = Math.Abs(top);
+          
+            return top / Magnitude(normal);
         }
     }
 

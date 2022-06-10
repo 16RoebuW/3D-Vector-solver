@@ -36,6 +36,8 @@
             this.label3 = new System.Windows.Forms.Label();
             this.tbxPoint = new System.Windows.Forms.TextBox();
             this.btnSolve = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
+            this.tbxPlane = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // cbxOptions
@@ -45,7 +47,9 @@
             "Intersection between a point and a line",
             "Intersection between two lines",
             "Are two lines skew?",
-            "Shortest distance between two lines"});
+            "Shortest distance between two lines",
+            "Shortest distance between a point and a line",
+            "Shortest distance between a point and a plane"});
             this.cbxOptions.Location = new System.Drawing.Point(26, 95);
             this.cbxOptions.Name = "cbxOptions";
             this.cbxOptions.Size = new System.Drawing.Size(368, 21);
@@ -112,11 +116,30 @@
             this.btnSolve.UseVisualStyleBackColor = true;
             this.btnSolve.Click += new System.EventHandler(this.btnSolve_Click);
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(458, 210);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(311, 13);
+            this.label4.TabIndex = 9;
+            this.label4.Text = "Enter the normal of a plane and the value, separated by commas";
+            // 
+            // tbxPlane
+            // 
+            this.tbxPlane.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.tbxPlane.Location = new System.Drawing.Point(461, 226);
+            this.tbxPlane.Name = "tbxPlane";
+            this.tbxPlane.Size = new System.Drawing.Size(196, 26);
+            this.tbxPlane.TabIndex = 8;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.tbxPlane);
             this.Controls.Add(this.btnSolve);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.tbxPoint);
@@ -142,6 +165,8 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox tbxPoint;
         private System.Windows.Forms.Button btnSolve;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox tbxPlane;
     }
 }
 
