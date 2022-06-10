@@ -81,6 +81,11 @@ namespace _3D_Vector_solver
                         MessageBox.Show("The lines are skew");
                         break;
                     }
+                case "Shortest distance between two lines":
+                    {
+                        MessageBox.Show(ShortestDistance(ParseLine(tbxLn1.Text), ParseLine(tbxLn2.Text)).ToString());
+                        break;
+                    }
             }
         }
 
@@ -233,9 +238,9 @@ namespace _3D_Vector_solver
             // Rows are xyz
             double[,] perpDirection = new double[3,3];
 
-            perpDirection[0, 0] = l1[3];
-            perpDirection[1, 0] = l1[4];
-            perpDirection[2, 0] = l1[5];
+            perpDirection[0, 0] = -l1[3];
+            perpDirection[1, 0] = -l1[4];
+            perpDirection[2, 0] = -l1[5];
 
             perpDirection[0, 1] = l2[3];
             perpDirection[1, 1] = l2[4];
@@ -246,6 +251,29 @@ namespace _3D_Vector_solver
             perpDirection[2, 2] = l2[2] - l1[2];
 
             // Dot product of this = 0 with both lines
+
+            double[] eqn1 = new double[3];
+            double[] eqn2 = new double[3];
+            double[] eqn3 = new double[3];
+
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    eqn1[j] += perpDirection[i, j] * l1[i + 3];
+            eqn1[2] *= -1;
+
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    eqn2[j] += perpDirection[i, j] * l2[i + 3];
+            eqn2[2] *= -1;
+
+            var (valid, x, y) = Find2Unknowns(eqn1, eqn2);
+
+            double[] distanceVect = new double[3];
+
+            for (int i = 0; i < 3; i++)
+                distanceVect[i] = (x * perpDirection[i, 0]) + (y * perpDirection[i, 1]) + perpDirection[i,2];
+
+            return Magnitude(distanceVect);
         }
     }
 
