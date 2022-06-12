@@ -49,7 +49,9 @@
             "Are two lines skew?",
             "Shortest distance between two lines",
             "Shortest distance between a point and a line",
-            "Shortest distance between a point and a plane"});
+            "Shortest distance between a point and a plane",
+            "Reflect a point in a plane",
+            "Reflect a line in a plane"});
             this.cbxOptions.Location = new System.Drawing.Point(26, 95);
             this.cbxOptions.Name = "cbxOptions";
             this.cbxOptions.Size = new System.Drawing.Size(368, 21);

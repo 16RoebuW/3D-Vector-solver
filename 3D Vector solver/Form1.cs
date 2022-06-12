@@ -24,10 +24,10 @@ namespace _3D_Vector_solver
             {
                 case "Intersection between a point and a line":
                     {
-                        (bool valid, double pos) = PointIntersectsLine(ParseLine(tbxLn1.Text), ParsePoint(tbxPoint.Text));
+                        (bool valid, double lambda) = PointIntersectsLine(ParseLine(tbxLn1.Text), ParsePoint(tbxPoint.Text));
                         if (valid)
                         {
-                            MessageBox.Show("The point intersects the line when λ = " + pos);
+                            MessageBox.Show("The point intersects the line when λ = " + lambda);
                         }
                         else
                         {
@@ -96,6 +96,18 @@ namespace _3D_Vector_solver
                         MessageBox.Show(ShortestDistancePointPlane(ParsePlane(tbxPlane.Text), ParsePoint(tbxPoint.Text)).ToString());
                         break;
                     }
+                case "Reflect a point in a plane":
+                    {
+                        double[] point = ReflectionPointPlane(ParsePlane(tbxPlane.Text), ParsePoint(tbxPoint.Text));
+                        MessageBox.Show($"Reflected point is at ({point[0]}, {point[1]}, {point[2]}");
+                        break;
+                    }
+                case "Reflect a line in a plane":
+                    {
+                        double[] line = ReflectionLinePlane(ParsePlane(tbxPlane.Text), ParseLine(tbxLn1.Text));
+                        MessageBox.Show($"The reflected line has equation ({line[0]}, {line[1]}, {line[2]}) + λ({line[3]}, {line[4]}, {line[5]})");
+                        break;
+                    }
             }
         }
 
@@ -153,7 +165,7 @@ namespace _3D_Vector_solver
             return Math.Sqrt((vector[0] * vector[0]) + (vector[1] * vector[1]) + (vector[2] * vector[2]));
         }
 
-        (bool valid, double pos) PointIntersectsLine(double[] line, double[] point)
+        (bool valid, double lambda) PointIntersectsLine(double[] line, double[] point)
         {
             double coefficient1 = line[3];
             double value1 = point[0] - line[0];
@@ -216,6 +228,26 @@ namespace _3D_Vector_solver
             }
 
 
+        }
+
+        (bool valid, double lambda) LineIntersectsPlane(double[] plane, double[] line)
+        {
+            double value = plane[3];
+            double coefficient = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                value -= line[i] * plane[i];
+                coefficient += line[i + 3] * plane[i];
+            }
+
+            if (coefficient != 0)
+            {
+                return (true, FindUnknown(coefficient, value));
+            }
+            else
+            {
+                return (false, 0);
+            }
         }
 
         (bool valid, double x, double y) Find2Unknowns(double[] eqn1, double[] eqn2)
@@ -375,6 +407,50 @@ namespace _3D_Vector_solver
             top = Math.Abs(top);
           
             return top / Magnitude(normal);
+        }
+
+        double[] ReflectionPointPlane(double[] plane, double[] point)
+        {
+            double[] normalLine = new double[6];
+            for (int i = 0; i < 3; i++)
+                normalLine[i] = point[i];
+            for (int i = 0; i < 3; i++)
+                normalLine[i + 3] = plane[i];
+
+            double lambda = LineIntersectsPlane(plane, normalLine).lambda;
+
+            double[] reflectedPoint = new double[3];
+            for (int i = 0; i < 3; i++)
+                reflectedPoint[i] = point[i] + (2 * lambda * plane[i]);
+
+            return reflectedPoint;
+        }
+
+        // Does not work for parallel line/plane
+        double[] ReflectionLinePlane(double[] plane, double[] line)
+        {
+            double lambdaI = LineIntersectsPlane(plane, line).lambda;
+            double[] intersectPoint = new double[3]; 
+
+            double anyLambda = lambdaI + 2;
+            double[] reflectedPoint = new double[3];
+
+            for (int i = 0; i < 3; i++)
+            {
+                reflectedPoint[i] = line[i] + (anyLambda * line[i + 3]);
+                intersectPoint[i] = line[i] + (lambdaI * line[i + 3]);
+            }
+
+            reflectedPoint = ReflectionPointPlane(plane, reflectedPoint);
+
+            double[] reflectedLine = new double[6];
+            for (int i = 0; i < 3; i++)
+            {
+                reflectedLine[i] = intersectPoint[i];
+                reflectedLine[i + 3] = reflectedPoint[i] - intersectPoint[i];
+            }
+
+            return reflectedLine;
         }
     }
 
