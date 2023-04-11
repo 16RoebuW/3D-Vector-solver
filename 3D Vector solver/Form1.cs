@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -440,33 +441,50 @@ namespace _3D_Vector_solver
             return reflectedPoint;
         }
 
-        // Does not work for parallel line/plane
         double[] ReflectionLinePlane(double[] plane, double[] line)
         {
-            double lambdaI = LineIntersectsPlane(plane, line).lambda;
-            double[] intersectPoint = new double[3]; 
-
-            // Picking some point on the line, in this case 2+ the value where they intersect
-            double anyLambda = lambdaI + 2;
-            double[] reflectedPoint = new double[3];
-
-            for (int i = 0; i < 3; i++)
+            // Check if the line is parallel
+            if (DotProduct(new double[3] { line[3], line[4], line[5] }, new double[3] { plane[0], plane[1], plane[2] }) == 0) // is parallel
             {
-                reflectedPoint[i] = line[i] + (anyLambda * line[i + 3]);
-                intersectPoint[i] = line[i] + (lambdaI * line[i + 3]);
+                // A line normal to the plane and the parallel line. Intersects the parallel line and the plane
+                double[] normalLine = new double[6] {line[0] + line[3], line[1] + line[4], line[2] + line[5], plane[0], plane[1], plane[2] };
+                double lambdaDist = LineIntersectsPlane(plane, normalLine).lambda;
+
+                // Translate the line by double the distance from the line to the plane
+                double[] reflectedLine = line.ToArray();
+                for (int i = 0; i < 3; i++)
+                {
+                    reflectedLine[i] += 2 * lambdaDist * normalLine[i + 3];
+                }
+                return reflectedLine;
             }
-
-            reflectedPoint = ReflectionPointPlane(plane, reflectedPoint);
-
-            // Construct line using the two points
-            double[] reflectedLine = new double[6];
-            for (int i = 0; i < 3; i++)
+            else
             {
-                reflectedLine[i] = intersectPoint[i];
-                reflectedLine[i + 3] = reflectedPoint[i] - intersectPoint[i];
-            }
+                double lambdaI = LineIntersectsPlane(plane, line).lambda;
+                double[] intersectPoint = new double[3];
 
-            return reflectedLine;
+                // Picking some point on the line, in this case 2+ the value where they intersect
+                double anyLambda = lambdaI + 2;
+                double[] reflectedPoint = new double[3];
+
+                for (int i = 0; i < 3; i++)
+                {
+                    reflectedPoint[i] = line[i] + (anyLambda * line[i + 3]);
+                    intersectPoint[i] = line[i] + (lambdaI * line[i + 3]);
+                }
+
+                reflectedPoint = ReflectionPointPlane(plane, reflectedPoint);
+
+                // Construct line using the two points
+                double[] reflectedLine = new double[6];
+                for (int i = 0; i < 3; i++)
+                {
+                    reflectedLine[i] = intersectPoint[i];
+                    reflectedLine[i + 3] = reflectedPoint[i] - intersectPoint[i];
+                }
+
+                return reflectedLine;
+            }
         }
     }
 
