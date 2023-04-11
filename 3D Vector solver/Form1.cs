@@ -10,6 +10,7 @@ using System.Windows.Forms;
 
 namespace _3D_Vector_solver
 {
+    // To do: line of intersection between two planes
     public partial class MainForm : Form
     {
         public MainForm()
@@ -165,91 +166,6 @@ namespace _3D_Vector_solver
             return Math.Sqrt((vector[0] * vector[0]) + (vector[1] * vector[1]) + (vector[2] * vector[2]));
         }
 
-        (bool valid, double lambda) PointIntersectsLine(double[] line, double[] point)
-        {
-            double coefficient1 = line[3];
-            double value1 = point[0] - line[0];
-            // Find λ for x
-
-            double coefficient2 = line[4];
-            double value2 = point[1] - line[1];
-            // Check λ for y
-            
-            double coefficient3 = line[5];
-            double value3 = point[2] - line[2];
-            // Check λ for z
-
-            double lambda1 = FindUnknown(coefficient1, value1);
-            double lambda2 = FindUnknown(coefficient2, value2);
-            double lambda3 = FindUnknown(coefficient3, value3);
-
-            if (lambda1 == lambda2 && lambda2 == lambda3)
-            {
-                return (true, FindUnknown(coefficient1, value1));
-            }
-            else
-            {
-                return (false, 0);
-            }
-        }
-
-        (bool valid, double[] pos) LineIntersection(double[] l1, double[] l2)
-        {
-            double[] eqn1 = new double[3];
-            eqn1[0] = l1[3];
-            eqn1[1] = -l2[3];
-            eqn1[2] = -l1[0] + l2[0];
-
-            double[] eqn2 = new double[3];
-            eqn2[0] = l1[4];
-            eqn2[1] = -l2[4];
-            eqn2[2] = -l1[1] + l2[1];
-
-            double[] eqn3 = new double[3];
-            eqn3[0] = l1[5];
-            eqn3[1] = -l2[5];
-            eqn3[2] = -l1[2] + l2[2];
-
-            var (valid, x, y) = Find2Unknowns(eqn1, eqn2);
-            var (valid2, y2, z) = Find2Unknowns(eqn2, eqn3);
-            var (valid3, x2, z2) = Find2Unknowns(eqn1, eqn3);
-
-            if (valid && valid2 && valid3)
-            {
-                double[] point = new double[3];
-                point[0] = l1[0] + (x * l1[3]);
-                point[1] = l1[1] + (x * l1[4]);
-                point[2] = l1[2] + (x * l1[5]);
-                return (true, point);
-            }
-            else
-            {
-                return (false, new double[3] { 0, 0, 0 });
-            }
-
-
-        }
-
-        (bool valid, double lambda) LineIntersectsPlane(double[] plane, double[] line)
-        {
-            double value = plane[3];
-            double coefficient = 0;
-            for (int i = 0; i < 3; i++)
-            {
-                value -= line[i] * plane[i];
-                coefficient += line[i + 3] * plane[i];
-            }
-
-            if (coefficient != 0)
-            {
-                return (true, FindUnknown(coefficient, value));
-            }
-            else
-            {
-                return (false, 0);
-            }
-        }
-
         (bool valid, double x, double y) Find2Unknowns(double[] eqn1, double[] eqn2)
         {
             // Construct a 2x2 matrix and invert it
@@ -287,6 +203,96 @@ namespace _3D_Vector_solver
             return (true, x, y);
         }
 
+        (bool valid, double lambda) PointIntersectsLine(double[] line, double[] point)
+        {
+            double coefficient1 = line[3];
+            double value1 = point[0] - line[0];
+            // Find λ for x
+
+            double coefficient2 = line[4];
+            double value2 = point[1] - line[1];
+            // Check λ for y
+            
+            double coefficient3 = line[5];
+            double value3 = point[2] - line[2];
+            // Check λ for z
+
+            double lambda1 = FindUnknown(coefficient1, value1);
+            double lambda2 = FindUnknown(coefficient2, value2);
+            double lambda3 = FindUnknown(coefficient3, value3);
+
+            if (lambda1 == lambda2 && lambda2 == lambda3)
+            {
+                return (true, FindUnknown(coefficient1, value1));
+            }
+            else
+            {
+                return (false, 0);
+            }
+        }
+
+        (bool valid, double[] pos) LineIntersection(double[] l1, double[] l2)
+        {
+            // Using the x co-ords to form an equation in lambda and mu (eqn[0] represents lambda, [1] is mu and [2] is the constant)
+            double[] eqn1 = new double[3];
+            eqn1[0] = l1[3];
+            eqn1[1] = -l2[3];
+            eqn1[2] = -l1[0] + l2[0];
+
+            // Do the same with y
+            double[] eqn2 = new double[3];
+            eqn2[0] = l1[4];
+            eqn2[1] = -l2[4];
+            eqn2[2] = -l1[1] + l2[1];
+
+            // And finally with z
+            double[] eqn3 = new double[3];
+            eqn3[0] = l1[5];
+            eqn3[1] = -l2[5];
+            eqn3[2] = -l1[2] + l2[2];
+
+            // Solve simultaneously and check
+            var (valid, x, y) = Find2Unknowns(eqn1, eqn2);
+            var (valid2, y2, z) = Find2Unknowns(eqn2, eqn3);
+            var (valid3, x2, z2) = Find2Unknowns(eqn1, eqn3);
+
+            if (valid && valid2 && valid3)
+            {
+                double[] point = new double[3];
+                point[0] = l1[0] + (x * l1[3]);
+                point[1] = l1[1] + (x * l1[4]);
+                point[2] = l1[2] + (x * l1[5]);
+                return (true, point);
+            }
+            else
+            {
+                return (false, new double[3] { 0, 0, 0 });
+            }
+
+
+        }
+
+        (bool valid, double lambda) LineIntersectsPlane(double[] plane, double[] line)
+        {
+            double value = plane[3];
+            double coefficient = 0;
+            // Dot product but with the unknown, lambda
+            for (int i = 0; i < 3; i++)
+            {
+                value -= line[i] * plane[i];
+                coefficient += line[i + 3] * plane[i];
+            }
+
+            if (coefficient != 0)
+            {
+                return (true, FindUnknown(coefficient, value));
+            }
+            else
+            {
+                return (false, 0);
+            }
+        }     
+
         double ShortestDistanceLines(double[] l1, double[] l2)
         {
             bool parallel = true;
@@ -304,10 +310,12 @@ namespace _3D_Vector_solver
             {
                 // Suprisingly, this is not an optimisation step. The problem cannot be solved when dealing with parallel lines unless this method is adopted
 
+                // We make a new line, combining the offsets and making the direction in terms of t (mu - lambda)
                 double[] perpOffset = new double[3];
                 for (int i = 0; i < 3; i++)
                     perpOffset[i] = l2[i] - l1[i];
 
+                // Dot product with t as this line is perpendicular to both lines so = 0
                 double coefficient = 0;
                 for (int i = 3; i < 6; i++)
                     coefficient += l1[i] * l1[i];
@@ -316,8 +324,10 @@ namespace _3D_Vector_solver
                 for (int i = 0; i < 3; i++)
                     value -= perpOffset[i] * l1[i + 3];
 
+                // Find t
                 double t = FindUnknown(coefficient, value);
 
+                // Use the value of t for the distance between the lines
                 double[] distanceVect = new double[3];
                 for (int i = 0; i < 3; i++)
                     distanceVect[i] = perpOffset[i] + (t * l1[i + 3]);
@@ -342,6 +352,7 @@ namespace _3D_Vector_solver
                 perpDirection[0, 2] = l2[0] - l1[0];
                 perpDirection[1, 2] = l2[1] - l1[1];
                 perpDirection[2, 2] = l2[2] - l1[2];
+                // So now we have the general vector (in terms of lambda and mu) between the lines
 
                 // Dot product of this = 0 with both lines
 
@@ -363,6 +374,7 @@ namespace _3D_Vector_solver
 
                 double[] distanceVect = new double[3];
 
+                // Sub in lambda and mu (x and y here)
                 for (int i = 0; i < 3; i++)
                     distanceVect[i] = (x * perpDirection[i, 0]) + (y * perpDirection[i, 1]) + perpDirection[i, 2];
 
@@ -372,6 +384,7 @@ namespace _3D_Vector_solver
 
         double ShortestDistancePointLine(double[] line, double[] point)
         {
+            // Get the vector of a general point on the line to the point in question and then dot product this with the line's direction as it is perpendicular
             double[] offset = new double[3];
             double value = 0;
             double coefficient = 0;
@@ -381,13 +394,14 @@ namespace _3D_Vector_solver
                 value -= offset[i] * line[i + 3];
                 coefficient = line[i + 3] * line[i + 3];
             }
-
-            double unknown = FindUnknown(coefficient, value);
+            
+            // Find lambda and substitute
+            double lambda = FindUnknown(coefficient, value);
 
             double[] distanceVector = new double[3];
 
             for (int i = 0; i < 3; i++)
-                distanceVector[i] = offset[i] + (line[i + 3] * unknown);
+                distanceVector[i] = offset[i] + (line[i + 3] * lambda);
 
             return Magnitude(distanceVector);
         }
@@ -432,6 +446,7 @@ namespace _3D_Vector_solver
             double lambdaI = LineIntersectsPlane(plane, line).lambda;
             double[] intersectPoint = new double[3]; 
 
+            // Picking some point on the line, in this case 2+ the value where they intersect
             double anyLambda = lambdaI + 2;
             double[] reflectedPoint = new double[3];
 
@@ -443,6 +458,7 @@ namespace _3D_Vector_solver
 
             reflectedPoint = ReflectionPointPlane(plane, reflectedPoint);
 
+            // Construct line using the two points
             double[] reflectedLine = new double[6];
             for (int i = 0; i < 3; i++)
             {
