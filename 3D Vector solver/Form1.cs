@@ -393,7 +393,7 @@ namespace _3D_Vector_solver
             {
                 offset[i] = line[i] - point[i];
                 value -= offset[i] * line[i + 3];
-                coefficient = line[i + 3] * line[i + 3];
+                coefficient += line[i + 3] * line[i + 3];
             }
             
             // Find lambda and substitute
